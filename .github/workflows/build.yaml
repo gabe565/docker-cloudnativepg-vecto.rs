@@ -1,0 +1,60 @@
+name: Build
+
+on: push
+
+env:
+  # renovate datasource=docker depName=ghcr.io/cloudnative-pg/postgresql
+  CLOUDNATIVEPG_REF: 16.1-7
+
+  # renovate datasource=github-releases depName=tensorchord/pgvecto.rs
+  VECTORS_REF: v0.1.11
+
+jobs:
+  build:
+    name: Build Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Strip Vectors ref prefix
+        id: vectors
+        run: echo "version=${VECTORS_REF##v}" >> $GITHUB_OUTPUT
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/${{ github.repository_owner }}/cloudnativepg-vecto-rs
+          tags: |
+            type=raw,priority=1000,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=${{ env.CLOUDNATIVEPG_REF }}-vectors${{ steps.vectors.outputs.version }},enable=${{ github.ref == 'refs/heads/main' }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - name: Short Postgres version
+        id: postgres
+        run: echo "major=${CLOUDNATIVEPG_REF%%.*}" >> $GITHUB_OUTPUT
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          pull: true
+          push: ${{ github.secret_source == 'Actions' && steps.meta.outputs.tags != '' }}
+          platforms: linux/amd64,linux/arm64/v8
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            CLOUDNATIVEPG_VERSION=${{ env.CLOUDNATIVEPG_REF }}
+            PGVECTORS_TAG=pg${{ steps.postgres.outputs.major }}-${{ env.VECTORS_REF }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
