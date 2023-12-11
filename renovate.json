@@ -17,5 +17,19 @@
         "<!--renovate datasource=(?<datasource>.+?) repo=(?<depName>.+) -->\\n.*\\/Version-(?<currentValue>.+?)-"
       ]
     }
+  ],
+  "packageRules": [
+    {
+      "matchFileNames": ["pg14.yaml"],
+      "allowedVersions": "< 15"
+    },
+    {
+      "matchFileNames": ["pg15.yaml"],
+      "allowedVersions": "< 16"
+    },
+    {
+      "matchFileNames": ["pg16.yaml"],
+      "allowedVersions": "< 17"
+    }
   ]
 }

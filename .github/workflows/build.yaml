@@ -3,22 +3,31 @@ name: Build
 on: push
 
 env:
-  # renovate datasource=docker depName=ghcr.io/cloudnative-pg/postgresql
-  CLOUDNATIVEPG_REF: 16.1-7
-
   # renovate datasource=github-releases depName=tensorchord/pgvecto.rs
   VECTORS_REF: v0.1.11
 
 jobs:
   build:
-    name: Build Image
+    name: Build Image (pg${{ matrix.postgres_version }})
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+    strategy:
+      matrix:
+        postgres_version: ["14", "15", "16"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Get CloudNativePG version
+        id: cnpg
+        env:
+          FILE: versions/pg${{ matrix.postgres_version }}.yaml
+        run: |
+          {
+            echo "version=$(yq '.version' "$FILE")"
+            echo "major=$(yq '.version | split(".").0' "$FILE")"
+          } >> $GITHUB_OUTPUT
       - name: Strip Vectors ref prefix
         id: vectors
         run: echo "version=${VECTORS_REF##v}" >> $GITHUB_OUTPUT
@@ -28,9 +37,12 @@ jobs:
         with:
           images: |
             ghcr.io/${{ github.repository_owner }}/cloudnativepg-vecto-rs
+          flavor: latest=false
           tags: |
-            type=raw,priority=1000,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
-            type=raw,value=${{ env.CLOUDNATIVEPG_REF }}-vectors${{ steps.vectors.outputs.version }},enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,priority=1000,value=${{ steps.cnpg.outputs.version }}-latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,priority=1000,value=${{ steps.cnpg.outputs.major }}-latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=${{ steps.cnpg.outputs.version }}-vectors${{ steps.vectors.outputs.version }},enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=${{ steps.cnpg.outputs.major }}-vectors${{ steps.vectors.outputs.version }},enable=${{ github.ref == 'refs/heads/main' }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Buildx
@@ -41,20 +53,17 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ github.token }}
-      - name: Short Postgres version
-        id: postgres
-        run: echo "major=${CLOUDNATIVEPG_REF%%.*}" >> $GITHUB_OUTPUT
       - name: Build and Push
         uses: docker/build-push-action@v5
         with:
           context: .
           pull: true
-          push: ${{ github.secret_source == 'Actions' && steps.meta.outputs.tags != '' }}
+          push: false
           platforms: linux/amd64,linux/arm64/v8
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            CLOUDNATIVEPG_VERSION=${{ env.CLOUDNATIVEPG_REF }}
-            PGVECTORS_TAG=pg${{ steps.postgres.outputs.major }}-${{ env.VECTORS_REF }}
+            CLOUDNATIVEPG_VERSION=${{ steps.cnpg.outputs.version }}
+            PGVECTORS_TAG=pg${{ steps.cnpg.outputs.major }}-${{ env.VECTORS_REF }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
