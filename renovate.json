@@ -17,5 +17,12 @@
         "<!--renovate datasource=(?<datasource>.+?) repo=(?<depName>.+) -->\\n.*\\/Version-(?<currentValue>.+?)-"
       ]
     }
+  ],
+  "packageRules": [
+    {
+      "matchFileNames": ["versions/*"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    }
   ]
 }
