@@ -40,12 +40,12 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/cloudnativepg-vecto-rs
           flavor: latest=false
           tags: |
-            type=raw,priority=999,value=${{ steps.cnpg.outputs.version }}-vectors${{ steps.vectors.outputs.version }},enable={{is_default_branch}}
-            type=raw,priority=998,value=${{ steps.cnpg.outputs.minor }}-vectors${{ steps.vectors.outputs.version }},enable={{is_default_branch}}
-            type=raw,priority=997,value=${{ steps.cnpg.outputs.major }}-vectors${{ steps.vectors.outputs.version }},enable={{is_default_branch}}
-            type=raw,priority=996,value=${{ steps.cnpg.outputs.version }}-latest,enable={{is_default_branch}}
-            type=raw,priority=995,value=${{ steps.cnpg.outputs.minor }}-latest,enable={{is_default_branch}}
-            type=raw,priority=994,value=${{ steps.cnpg.outputs.major }}-latest,enable={{is_default_branch}}
+            type=raw,priority=999,value=${{ steps.cnpg.outputs.version }}-vectors${{ steps.vectors.outputs.version }}
+            type=raw,priority=998,value=${{ steps.cnpg.outputs.minor }}-vectors${{ steps.vectors.outputs.version }}
+            type=raw,priority=997,value=${{ steps.cnpg.outputs.major }}-vectors${{ steps.vectors.outputs.version }}
+            type=raw,priority=996,value=${{ steps.cnpg.outputs.version }}-latest
+            type=raw,priority=995,value=${{ steps.cnpg.outputs.minor }}-latest
+            type=raw,priority=994,value=${{ steps.cnpg.outputs.major }}-latest
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Buildx
@@ -61,7 +61,7 @@ jobs:
         with:
           context: .
           pull: true
-          push: ${{ github.secret_source == 'Actions' && steps.meta.outputs.tags != '' }}
+          push: ${{ github.secret_source == 'Actions' && github.ref_name == 'main' }}
           platforms: linux/amd64,linux/arm64/v8
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
