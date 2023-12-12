@@ -47,9 +47,9 @@ jobs:
             type=raw,priority=999,value=${{ steps.cnpg.outputs.version }}-vectors${{ steps.vectors.outputs.version }}
             type=raw,priority=998,value=${{ steps.cnpg.outputs.minor }}-vectors${{ steps.vectors.outputs.version }}
             type=raw,priority=997,value=${{ steps.cnpg.outputs.major }}-vectors${{ steps.vectors.outputs.version }}
-            type=raw,priority=996,value=${{ steps.cnpg.outputs.version }}-latest
-            type=raw,priority=995,value=${{ steps.cnpg.outputs.minor }}-latest
-            type=raw,priority=994,value=${{ steps.cnpg.outputs.major }}-latest
+            type=raw,priority=996,value=${{ steps.cnpg.outputs.version }}
+            type=raw,priority=995,value=${{ steps.cnpg.outputs.minor }}
+            type=raw,priority=994,value=${{ steps.cnpg.outputs.major }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Buildx
