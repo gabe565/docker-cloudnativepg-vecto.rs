@@ -1,2 +1,0 @@
-# renovate datasource=docker depName=ghcr.io/cloudnative-pg/postgresql
-version: 15.5-6

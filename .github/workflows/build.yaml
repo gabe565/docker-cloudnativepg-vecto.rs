@@ -8,29 +8,33 @@ env:
 
 jobs:
   build:
-    name: Build Image (pg${{ matrix.postgres_version }})
+    name: Build Image (${{ matrix.cnpg_version }})
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
     strategy:
       matrix:
-        postgres_version: ["14", "15", "16"]
         include:
-          - postgres_version: "16"
+          # renovate datasource=docker depName=ghcr.io/cloudnative-pg/postgresql
+          - cnpg_version: 16.1-7
             latest: "true"
+          # renovate datasource=docker depName=ghcr.io/cloudnative-pg/postgresql
+          - cnpg_version: 15.5-6
+          # renovate datasource=docker depName=ghcr.io/cloudnative-pg/postgresql
+          - cnpg_version: 14.10-6
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Get CloudNativePG version
         id: cnpg
         env:
-          FILE: versions/pg${{ matrix.postgres_version }}.yaml
+          VERSION: ${{ matrix.cnpg_version }}
         run: |
           {
-            echo "version=$(yq '.version' "$FILE")"
-            echo "minor=$(yq '.version | split("-").0' "$FILE")"
-            echo "major=$(yq '.version | split(".").0' "$FILE")"
+            echo "version=$VERSION"
+            echo "minor=$(cut -d- -f1 <<<"$VERSION")"
+            echo "major=$(cut -d. -f1 <<<"$VERSION")"
           } >> $GITHUB_OUTPUT
       - name: Strip Vectors ref prefix
         id: vectors

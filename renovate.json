@@ -20,7 +20,7 @@
   ],
   "packageRules": [
     {
-      "matchFileNames": ["versions/*"],
+      "matchDepNames": ["ghcr.io/cloudnative-pg/postgresql"],
       "matchUpdateTypes": ["major"],
       "enabled": false
     }
