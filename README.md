@@ -24,5 +24,7 @@ metadata:
 spec:
   # [...]
   imageName: ghcr.io/gabe565/cloudnativepg-vecto-rs:16
-  # [...]
+  postgresql:
+    shared_preload_libraries:
+      - vectors.so
 ```
