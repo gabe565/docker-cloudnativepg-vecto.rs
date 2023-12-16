@@ -20,9 +20,9 @@ For example:
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-# [...]
+  name: example
 spec:
-  # [...]
+  instances: 3
   imageName: ghcr.io/gabe565/cloudnativepg-vecto-rs:16
   postgresql:
     shared_preload_libraries:
