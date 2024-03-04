@@ -4,7 +4,7 @@ on: push
 
 env:
   # renovate datasource=github-releases depName=tensorchord/pgvecto.rs
-  VECTORS_REF: v0.2.0
+  VECTORS_REF: v0.2.1
 
 jobs:
   build:
