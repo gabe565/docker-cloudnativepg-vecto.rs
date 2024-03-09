@@ -3,6 +3,10 @@
 <!--renovate repo= -->
 [![Build](https://github.com/gabe565/docker-cloudnativepg-vecto.rs/actions/workflows/build.yaml/badge.svg)](https://github.com/gabe565/docker-cloudnativepg-vecto.rs/actions/workflows/build.yaml)
 
+> [!IMPORTANT]
+> This repository has been archived in favor of [tensorchord/cloudnative-pgvecto.rs](https://github.com/tensorchord/cloudnative-pgvecto.rs).
+> The current images will continue to be available, but new versions will not be built in this repository.
+
 This repo builds Docker images for [CloudNativePG](https://cloudnative-pg.io/) with the [pgvecto.rs](https://github.com/tensorchord/pgvecto.rs) extension installed.
 
 Both versions are automatically updated by Renovate bot, so new releases will be available within a few hours.
